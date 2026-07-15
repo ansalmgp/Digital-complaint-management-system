@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications - ShaktiCMS{% endblock %}
+{% block page_title %}Your Notifications{% endblock %}
+
+{% block content %}
+<div class="content-card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-header-flex" style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px;">
+        <div>
+            <h3 class="card-title"><i class="fa-solid fa-bell" style="color: var(--secondary-color); margin-right: 8px;"></i> Notification Center</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Stay updated with actions taken on your filed complaints. Visited notifications are automatically marked as read.</p>
+        </div>
+    </div>
+    
+    {% if notifications %}
+        <div class="notif-list">
+            {% for item in notifications %}
+                <div class="notif-item {% if not item.IsRead %}unread{% endif %}">
+                    <div class="notif-item-left">
+                        <span class="notif-text">
+                            {% if not item.IsRead %}
+                                <i class="fa-solid fa-circle" style="color: var(--secondary-color); font-size: 0.6rem; margin-right: 8px; vertical-align: middle;"></i>
+                            {% endif %}
+                            {{ item.Message }}
+                        </span>
+                        <span class="notif-time"><i class="fa-solid fa-clock" style="margin-right: 4px;"></i> {{ item.CreatedDate }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 45px 20px; color: var(--text-muted);">
+            <div style="width: 70px; height: 70px; background-color: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <i class="fa-regular fa-bell-slash fa-2x" style="color: var(--text-muted);"></i>
+            </div>
+            <h4 style="font-size: 1.05rem; font-weight: 600; color: var(--text-dark); margin-bottom: 5px;">All caught up!</h4>
+            <p style="font-size: 0.85rem;">You do not have any notifications at the moment.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

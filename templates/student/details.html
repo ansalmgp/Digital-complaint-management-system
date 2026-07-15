@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Complaint Details #{{ complaint.ComplaintID }} - ShaktiCMS{% endblock %}
+{% block page_title %}Complaint #{{ complaint.ComplaintID }} Details{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('student.history') }}" style="color: var(--secondary-color); text-decoration: none; font-weight: 600;">
+        <i class="fa-solid fa-arrow-left" style="margin-right: 5px;"></i> Back to Complaint History
+    </a>
+</div>
+
+<div class="detail-grid">
+    
+    <!-- Left Panel: General Info and Content -->
+    <div class="content-card">
+        <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <span class="detail-label">Complaint Title</span>
+                <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--primary-color);">{{ complaint.Title }}</h2>
+            </div>
+            <span class="badge {{ complaint.Status.lower().replace(' ', '-') }}" style="font-size: 0.9rem; padding: 6px 16px;">
+                {{ complaint.Status }}
+            </span>
+        </div>
+        
+        <div class="form-grid form-grid-2" style="margin-bottom: 20px;">
+            <div class="detail-block">
+                <span class="detail-label"><i class="fa-solid fa-folder" style="margin-right: 5px;"></i> Category</span>
+                <span class="detail-value" style="display: block; font-weight: 600;">{{ complaint.Category }}</span>
+            </div>
+            <div class="detail-block">
+                <span class="detail-label"><i class="fa-solid fa-calendar-days" style="margin-right: 5px;"></i> Date Submitted</span>
+                <span class="detail-value" style="display: block;">{{ complaint.CreatedDate }}</span>
+            </div>
+        </div>
+        
+        <div class="detail-block">
+            <span class="detail-label"><i class="fa-solid fa-align-left" style="margin-right: 5px;"></i> Full Description</span>
+            <div class="complaint-desc-box">{{ complaint.Description }}</div>
+        </div>
+        
+        {% if complaint.ImagePath %}
+            <div class="detail-block" style="margin-top: 25px;">
+                <span class="detail-label"><i class="fa-solid fa-image" style="margin-right: 5px;"></i> Supporting Image Attachment</span>
+                <div>
+                    <img src="{{ url_for('static', filename='uploads/' ~ complaint.ImagePath) }}" alt="Supporting Attachment" class="uploaded-image-preview">
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Right Panel: Status Timeline Tracking -->
+    <div class="content-card">
+        <h3 class="card-title" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px;">
+            <i class="fa-solid fa-route" style="color: var(--secondary-color); margin-right: 8px;"></i> Status History
+        </h3>
+        
+        {% if history_logs %}
+            <div class="timeline-wrapper">
+                {% for log in history_logs %}
+                    <div class="timeline-item completed">
+                        <div class="timeline-badge"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header-flex">
+                                <span class="timeline-status">
+                                    {% if log.OldStatus %}
+                                        {{ log.OldStatus }} &rarr; {{ log.NewStatus }}
+                                    {% else %}
+                                        Filed: {{ log.NewStatus }}
+                                    {% endif %}
+                                </span>
+                                <span class="timeline-date">{{ log.UpdatedDate }}</span>
+                            </div>
+                            <div class="timeline-updater">
+                                <i class="fa-solid fa-circle-user" style="margin-right: 4px;"></i> By: {{ log.UpdatedBy }}
+                            </div>
+                            {% if log.Remarks %}
+                                <div class="timeline-remarks">
+                                    "{{ log.Remarks }}"
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: var(--text-muted); text-align: center; font-style: italic;">No timeline history found.</p>
+        {% endif %}
+    </div>
+    
+</div>
+{% endblock %}

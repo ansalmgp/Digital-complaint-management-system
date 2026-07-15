@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - ShaktiCMS{% endblock %}
+{% block page_title %}Administrator Dashboard{% endblock %}
+
+{% block content %}
+<!-- Summary Statistic Cards -->
+<div class="dashboard-grid">
+    <!-- Total -->
+    <div class="stat-card total">
+        <span class="stat-title"><i class="fa-solid fa-folder-open" style="margin-right: 5px;"></i> Total Complaints</span>
+        <span class="stat-value">{{ stats.total }}</span>
+    </div>
+    <!-- Pending -->
+    <div class="stat-card pending">
+        <span class="stat-title"><i class="fa-solid fa-hourglass-start" style="margin-right: 5px;"></i> Pending</span>
+        <span class="stat-value">{{ stats.pending }}</span>
+    </div>
+    <!-- Under Review -->
+    <div class="stat-card review">
+        <span class="stat-title"><i class="fa-solid fa-magnifying-glass" style="margin-right: 5px;"></i> Under Review</span>
+        <span class="stat-value">{{ stats.under_review }}</span>
+    </div>
+    <!-- In Progress -->
+    <div class="stat-card progress">
+        <span class="stat-title"><i class="fa-solid fa-spinner" style="margin-right: 5px;"></i> In Progress</span>
+        <span class="stat-value">{{ stats.in_progress }}</span>
+    </div>
+    <!-- Resolved -->
+    <div class="stat-card resolved">
+        <span class="stat-title"><i class="fa-solid fa-circle-check" style="margin-right: 5px;"></i> Resolved</span>
+        <span class="stat-value">{{ stats.resolved }}</span>
+    </div>
+    <!-- Rejected -->
+    <div class="stat-card rejected">
+        <span class="stat-title"><i class="fa-solid fa-circle-xmark" style="margin-right: 5px;"></i> Rejected</span>
+        <span class="stat-value">{{ stats.rejected }}</span>
+    </div>
+</div>
+
+<!-- Quick Link Utilities -->
+<div class="quick-actions-bar">
+    <a href="{{ url_for('admin.manage_complaints') }}" class="btn-action btn-primary-action">
+        <i class="fa-solid fa-list-check"></i> Manage Complaints
+    </a>
+    <a href="{{ url_for('admin.students') }}" class="btn-action">
+        <i class="fa-solid fa-users-gear"></i> Manage Students
+    </a>
+    <a href="{{ url_for('admin.reports') }}" class="btn-action">
+        <i class="fa-solid fa-chart-line"></i> View System Reports
+    </a>
+</div>
+
+<!-- Charts Section -->
+<div class="report-row-flex">
+    <!-- Category Chart -->
+    <div class="chart-card">
+        <h3 class="card-title" style="margin-bottom: 15px;"><i class="fa-solid fa-chart-bar" style="color: var(--secondary-color); margin-right: 8px;"></i> Category-wise Complaints</h3>
+        <div class="chart-container">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Status Chart -->
+    <div class="chart-card">
+        <h3 class="card-title" style="margin-bottom: 15px;"><i class="fa-solid fa-chart-pie" style="color: var(--secondary-color); margin-right: 8px;"></i> Status Breakdown</h3>
+        <div class="chart-container">
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Complaints Table -->
+<div class="content-card">
+    <div class="card-header-flex">
+        <h3 class="card-title"><i class="fa-solid fa-bell" style="color: var(--secondary-color); margin-right: 8px;"></i> Recent Complaint Tickets</h3>
+        <a href="{{ url_for('admin.manage_complaints') }}" style="color: var(--secondary-color); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+            Manage All Tickets <i class="fa-solid fa-chevron-right"></i>
+        </a>
+    </div>
+    
+    {% if recent %}
+        <div class="table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Student Name</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Date Filed</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent %}
+                        <tr>
+                            <td><strong>#{{ item.ComplaintID }}</strong></td>
+                            <td>{{ item.StudentName }}</td>
+                            <td>{{ item.Title }}</td>
+                            <td>{{ item.Category }}</td>
+                            <td>{{ item.CreatedDate }}</td>
+                            <td>
+                                <span class="badge {{ item.Status.lower().replace(' ', '-') }}">
+                                    {{ item.Status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.details', complaint_id=item.ComplaintID) }}" class="table-btn">
+                                    <i class="fa-solid fa-pen-to-square"></i> Take Action
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="text-align: center; padding: 20px; color: var(--text-muted); font-style: italic;">No complaints found in the database.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load data injected from Python
+        const rawCategoryStats = {{ category_stats | tojson | safe }};
+        const rawStatusStats = {{ status_stats | tojson | safe }};
+        
+        // Define color schemes
+        const categoryColors = ['#1e3a8a', '#3b82f6', '#0284c7', '#06b6d4', '#8b5cf6', '#10b981', '#64748b'];
+        const statusColors = {
+            'Pending': '#d97706',
+            'Under Review': '#2563eb',
+            'In Progress': '#8b5cf6',
+            'Resolved': '#10b981',
+            'Rejected': '#ef4444'
+        };
+        
+        // Convert status color object to colors list matching status keys order
+        const statusColorsList = Object.keys(rawStatusStats).map(statusKey => {
+            return statusColors[statusKey] || '#64748b';
+        });
+        
+        // Draw charts
+        drawBarChart('categoryChart', rawCategoryStats, categoryColors);
+        drawPieChart('statusChart', rawStatusStats, statusColorsList);
+    });
+</script>
+{% endblock %}

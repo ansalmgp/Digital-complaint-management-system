@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - ShaktiCMS{% endblock %}
+{% block page_title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome Header Banner -->
+<div class="content-card" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: var(--white); margin-bottom: 25px;">
+    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 5px;">Welcome, {{ session.get('user_name') }}!</h2>
+    <p style="opacity: 0.85; font-size: 0.95rem;">Submit and track your academic or facilities-related complaints instantly. Our administration team reviews tickets regularly.</p>
+</div>
+
+<!-- Dashboard Grid Count Summary -->
+<div class="dashboard-grid">
+    <!-- Total Card -->
+    <div class="stat-card total">
+        <span class="stat-title"><i class="fa-solid fa-list-check" style="margin-right: 5px;"></i> Total Filed</span>
+        <span class="stat-value">{{ stats.total }}</span>
+    </div>
+    <!-- Pending Card -->
+    <div class="stat-card pending">
+        <span class="stat-title"><i class="fa-solid fa-hourglass-start" style="margin-right: 5px;"></i> Pending</span>
+        <span class="stat-value">{{ stats.pending }}</span>
+    </div>
+    <!-- Under Review Card -->
+    <div class="stat-card review">
+        <span class="stat-title"><i class="fa-solid fa-magnifying-glass" style="margin-right: 5px;"></i> Under Review</span>
+        <span class="stat-value">{{ stats.under_review }}</span>
+    </div>
+    <!-- In Progress Card -->
+    <div class="stat-card progress">
+        <span class="stat-title"><i class="fa-solid fa-spinner" style="margin-right: 5px;"></i> In Progress</span>
+        <span class="stat-value">{{ stats.in_progress }}</span>
+    </div>
+    <!-- Resolved Card -->
+    <div class="stat-card resolved">
+        <span class="stat-title"><i class="fa-solid fa-circle-check" style="margin-right: 5px;"></i> Resolved</span>
+        <span class="stat-value">{{ stats.resolved }}</span>
+    </div>
+</div>
+
+<!-- Quick Access Action Buttons -->
+<div class="quick-actions-bar">
+    <a href="{{ url_for('student.submit_complaint') }}" class="btn-action btn-primary-action">
+        <i class="fa-solid fa-circle-plus"></i> Submit a New Complaint
+    </a>
+    <a href="{{ url_for('student.history') }}" class="btn-action">
+        <i class="fa-solid fa-clock-rotate-left"></i> View History
+    </a>
+    <a href="{{ url_for('student.notifications') }}" class="btn-action">
+        <i class="fa-solid fa-bell"></i> Notifications 
+        {% if unread_count > 0 %}
+            <span style="background-color: var(--color-rejected); color: white; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem;">{{ unread_count }} New</span>
+        {% endif %}
+    </a>
+    <a href="{{ url_for('student.profile') }}" class="btn-action">
+        <i class="fa-solid fa-user-gear"></i> Update Profile
+    </a>
+</div>
+
+<!-- Recent Complaints Section -->
+<div class="content-card">
+    <div class="card-header-flex">
+        <h3 class="card-title"><i class="fa-solid fa-clock" style="color: var(--secondary-color); margin-right: 8px;"></i> Recent Complaints</h3>
+        <a href="{{ url_for('student.history') }}" style="color: var(--secondary-color); text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+            View All Complaints <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+    
+    {% if recent %}
+        <div class="table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Date Submitted</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in recent %}
+                        <tr>
+                            <td><strong>#{{ item.ComplaintID }}</strong></td>
+                            <td>{{ item.Title }}</td>
+                            <td>{{ item.Category }}</td>
+                            <td>{{ item.CreatedDate }}</td>
+                            <td>
+                                <span class="badge {{ item.Status.lower().replace(' ', '-') }}">
+                                    {{ item.Status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('student.details', complaint_id=item.ComplaintID) }}" class="table-btn">
+                                    <i class="fa-solid fa-eye"></i> View Details
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 30px; color: var(--text-muted);">
+            <i class="fa-regular fa-clipboard fa-3x" style="margin-bottom: 15px; color: var(--border-color);"></i>
+            <p>You haven't submitted any complaints yet.</p>
+            <a href="{{ url_for('student.submit_complaint') }}" class="table-btn" style="display: inline-block; margin-top: 15px;">
+                Submit Your First Complaint
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

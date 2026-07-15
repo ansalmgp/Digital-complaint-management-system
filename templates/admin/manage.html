@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Complaints - ShaktiCMS{% endblock %}
+{% block page_title %}Manage System Complaints{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px;">
+        <h3 class="card-title">All Student Complaint Tickets</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Manage status flows, assign technicians/officers, and write resolution remarks for submitted complaints.</p>
+    </div>
+    
+    <!-- Filtering Panel (Interacts with static/js/main.js filters) -->
+    <div class="filter-controls">
+        <!-- Search bar -->
+        <div class="filter-group" style="flex-grow: 2;">
+            <label for="tableSearch">Search Tickets</label>
+            <input type="text" id="tableSearch" class="input-filter" placeholder="Search by Ticket ID, Title, Student Name...">
+        </div>
+        
+        <!-- Category Filter -->
+        <div class="filter-group">
+            <label for="filterCategory">Category</label>
+            <select id="filterCategory" class="input-filter">
+                <option value="">All Categories</option>
+                <option value="Academic">Academic</option>
+                <option value="Hostel">Hostel</option>
+                <option value="Facilities">Facilities</option>
+                <option value="Library">Library</option>
+                <option value="Transport">Transport</option>
+                <option value="Others">Others</option>
+            </select>
+        </div>
+        
+        <!-- Status Filter -->
+        <div class="filter-group">
+            <label for="filterStatus">Status</label>
+            <select id="filterStatus" class="input-filter">
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Under Review">Under Review</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+        
+        <!-- Date Filter -->
+        <div class="filter-group">
+            <label for="filterDate">Date Filed</label>
+            <input type="date" id="filterDate" class="input-filter">
+        </div>
+    </div>
+    
+    <!-- Complaints List Table -->
+    {% if complaints %}
+        <div class="table-container">
+            <table class="custom-table" id="complaintsTable">
+                <thead>
+                    <tr>
+                        <th>Complaint ID</th>
+                        <th>Student Name</th>
+                        <th>Department</th>
+                        <th>Complaint Title</th>
+                        <th>Category</th>
+                        <th>Date Filed</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in complaints %}
+                        <tr>
+                            <td><strong>#{{ item.ComplaintID }}</strong></td>
+                            <td>{{ item.StudentName }}</td>
+                            <td>{{ item.StudentDept }}</td>
+                            <td>{{ item.Title }}</td>
+                            <td>{{ item.Category }}</td>
+                            <td>{{ item.CreatedDate }}</td>
+                            <td>
+                                <span class="badge {{ item.Status.lower().replace(' ', '-') }}">
+                                    {{ item.Status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.details', complaint_id=item.ComplaintID) }}" class="table-btn">
+                                    <i class="fa-solid fa-pen-to-square"></i> Review & Update
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fa-regular fa-folder-open fa-3x" style="margin-bottom: 15px; color: var(--border-color);"></i>
+            <p>No complaints filed in the system yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

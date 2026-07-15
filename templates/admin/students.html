@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Students - ShaktiCMS{% endblock %}
+{% block page_title %}Manage Students{% endblock %}
+
+{% block content %}
+<div class="detail-grid">
+    
+    <!-- Left Column: Student Accounts List -->
+    <div class="content-card">
+        <div class="card-header-flex" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px;">
+            <h3 class="card-title"><i class="fa-solid fa-users" style="color: var(--secondary-color); margin-right: 8px;"></i> Registered Students</h3>
+        </div>
+        
+        <!-- Table Search (using core table search script in main.js) -->
+        <div class="filter-controls" style="margin-bottom: 20px; padding: 12px;">
+            <div class="filter-group">
+                <input type="text" id="tableSearch" class="input-filter" placeholder="Search by name, email, or department...">
+            </div>
+        </div>
+        
+        {% if students %}
+            <div class="table-container">
+                <table class="custom-table" id="complaintsTable"> <!-- mapped to complaintsTable ID to reuse main.js filter script -->
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>College Email</th>
+                            <th>Department</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                            <tr>
+                                <td><strong>#{{ student.StudentID }}</strong></td>
+                                <td>{{ student.Name }}</td>
+                                <td>{{ student.Email }}</td>
+                                <td>{{ student.Department }}</td>
+                                <td>
+                                    <form action="{{ url_for('admin.students') }}" method="POST" onsubmit="return confirm('Warning: Deleting this student will delete all their complaints and notifications as well. Do you want to proceed?');" style="display:inline;">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="student_id" value="{{ student.StudentID }}">
+                                        <button type="submit" style="background:none; border:none; color: var(--color-rejected); cursor:pointer; font-weight:600; font-size:0.85rem;" title="Delete Student">
+                                            <i class="fa-solid fa-trash-can"></i> Remove
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="text-align: center; padding: 20px; color: var(--text-muted); font-style: italic;">No student accounts exist in the database.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Right Column: Add Student Form Card -->
+    <div class="content-card" style="height: fit-content;">
+        <h3 class="card-title" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; color: var(--primary-color);">
+            <i class="fa-solid fa-user-plus" style="margin-right: 8px;"></i> Add Student Account
+        </h3>
+        
+        <form action="{{ url_for('admin.students') }}" method="POST">
+            <input type="hidden" name="action" value="add">
+            
+            <div class="form-group">
+                <label for="student_name">Full Name <span>*</span></label>
+                <input type="text" id="student_name" name="name" class="form-control" placeholder="e.g. Rahul Verma" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="student_email">Email Address <span>*</span></label>
+                <input type="email" id="student_email" name="email" class="form-control" placeholder="e.g. rahul@college.edu" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="student_dept">Department <span>*</span></label>
+                <select id="student_dept" name="department" class="form-control" required>
+                    <option value="" disabled selected>-- Select Department --</option>
+                    <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+                    <option value="Electronics & Communication">Electronics & Communication</option>
+                    <option value="Electrical Engineering">Electrical Engineering</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="student_password">Password <span>*</span></label>
+                <input type="password" id="student_password" name="password" class="form-control" placeholder="Create login password" minlength="6" required>
+            </div>
+            
+            <button type="submit" class="btn-submit" style="width: 100%; text-align: center; justify-content: center; background-color: var(--primary-color);">
+                Register Student <i class="fa-solid fa-user-check" style="margin-left: 8px;"></i>
+            </button>
+        </form>
+    </div>
+    
+</div>
+{% endblock %}

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Secure login and registration portal for the college Digital Complaint Management System.">
+    <title>Login - Digital Complaint Management System</title>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Style CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-body">
+    
+    <div class="login-card">
+        <div class="login-logo">
+            <h1><i class="fa-solid fa-graduation-cap"></i> <span>Shakti</span>CMS</h1>
+            <p>Digital Complaint Management System</p>
+        </div>
+        
+        <!-- Flash Messages inside Login Box -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span style="font-size: 0.85rem;">{{ message }}</span>
+                            <button class="close-alert" style="font-size: 1rem;">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Tab Selectors -->
+        <div class="login-tabs">
+            <button id="studentTabBtn" class="login-tab-btn active" onclick="setLoginTab('student')">
+                <i class="fa-solid fa-user-graduate"></i> Student
+            </button>
+            <button id="adminTabBtn" class="login-tab-btn" onclick="setLoginTab('admin')">
+                <i class="fa-solid fa-user-shield"></i> Admin
+            </button>
+            <button id="registerTabBtn" class="login-tab-btn" onclick="setLoginTab('register')">
+                <i class="fa-solid fa-user-plus"></i> Register
+            </button>
+        </div>
+        
+        <!-- Student Login Form -->
+        <div id="studentFormContainer" class="login-form-container active">
+            <form action="{{ url_for('auth.login') }}" method="POST">
+                <input type="hidden" name="role" value="student">
+                
+                <div class="form-group">
+                    <label for="student_email">College Email Address <span>*</span></label>
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 14px; top: 12px; color: var(--text-muted);">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input type="email" id="student_email" name="email" class="form-control" 
+                               placeholder="yourname@college.edu" style="padding-left: 40px;" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="student_password">Password <span>*</span></label>
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 14px; top: 12px; color: var(--text-muted);">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="student_password" name="password" class="form-control" 
+                               placeholder="••••••••" style="padding-left: 40px;" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    Student Secure Login <i class="fa-solid fa-right-to-bracket" style="margin-left: 8px;"></i>
+                </button>
+            </form>
+            <div class="register-prompt">
+                <p>New Student? <a href="#" onclick="event.preventDefault(); setLoginTab('register');">Create an Account</a></p>
+            </div>
+        </div>
+        
+        <!-- Admin Login Form -->
+        <div id="adminFormContainer" class="login-form-container">
+            <form action="{{ url_for('auth.login') }}" method="POST">
+                <input type="hidden" name="role" value="admin">
+                
+                <div class="form-group">
+                    <label for="admin_username">Admin Username <span>*</span></label>
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 14px; top: 12px; color: var(--text-muted);">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </span>
+                        <input type="text" id="admin_username" name="username" class="form-control" 
+                               placeholder="e.g. admin" style="padding-left: 40px;" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="admin_password">Password <span>*</span></label>
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 14px; top: 12px; color: var(--text-muted);">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="admin_password" name="password" class="form-control" 
+                               placeholder="••••••••" style="padding-left: 40px;" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="login-btn" style="background-color: var(--primary-color);">
+                    Administrator Login <i class="fa-solid fa-shield" style="margin-left: 8px;"></i>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Student Registration Form -->
+        <div id="registerFormContainer" class="login-form-container">
+            <form action="{{ url_for('auth.register') }}" method="POST">
+                <div class="form-group">
+                    <label for="reg_name">Full Name <span>*</span></label>
+                    <input type="text" id="reg_name" name="name" class="form-control" 
+                           placeholder="e.g. Amit Sharma" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_email">College Email Address <span>*</span></label>
+                    <input type="email" id="reg_email" name="email" class="form-control" 
+                           placeholder="e.g. amit@college.edu" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_dept">Academic Department <span>*</span></label>
+                    <select id="reg_dept" name="department" class="form-control" required>
+                        <option value="" disabled selected>-- Select Department --</option>
+                        <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+                        <option value="Electronics & Communication">Electronics & Communication</option>
+                        <option value="Electrical Engineering">Electrical Engineering</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
+                        <option value="Information Technology">Information Technology</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_password">Password <span>*</span></label>
+                    <input type="password" id="reg_password" name="password" class="form-control" 
+                           placeholder="Create secure password" minlength="6" required>
+                </div>
+                
+                <button type="submit" class="login-btn" style="background-color: var(--secondary-color);">
+                    Create Account <i class="fa-solid fa-user-plus" style="margin-left: 8px;"></i>
+                </button>
+            </form>
+            <div class="register-prompt">
+                <p>Already Registered? <a href="#" onclick="event.preventDefault(); setLoginTab('student');">Back to Student Login</a></p>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        function setLoginTab(tab) {
+            const studentBtn = document.getElementById('studentTabBtn');
+            const adminBtn = document.getElementById('adminTabBtn');
+            const registerBtn = document.getElementById('registerTabBtn');
+            
+            const studentForm = document.getElementById('studentFormContainer');
+            const adminForm = document.getElementById('adminFormContainer');
+            const registerForm = document.getElementById('registerFormContainer');
+            
+            // Reset active classes
+            studentBtn.classList.remove('active');
+            adminBtn.classList.remove('active');
+            registerBtn.classList.remove('active');
+            
+            studentForm.classList.remove('active');
+            adminForm.classList.remove('active');
+            registerForm.classList.remove('active');
+            
+            // Set active selection
+            if (tab === 'student') {
+                studentBtn.classList.add('active');
+                studentForm.classList.add('active');
+            } else if (tab === 'admin') {
+                adminBtn.classList.add('active');
+                adminForm.classList.add('active');
+            } else if (tab === 'register') {
+                registerBtn.classList.add('active');
+                registerForm.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

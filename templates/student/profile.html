@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - ShaktiCMS{% endblock %}
+{% block page_title %}Student Profile Settings{% endblock %}
+
+{% block content %}
+<div class="content-card" style="max-width: 700px; margin: 0 auto;">
+    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+        <div class="user-avatar" style="width: 50px; height: 50px; font-size: 1.5rem;">
+            {{ student.Name[0] | upper }}
+        </div>
+        <div>
+            <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--primary-color);">Update Profile Details</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Manage your personal information and update login password credentials.</p>
+        </div>
+    </div>
+    
+    <form action="{{ url_for('student.profile') }}" method="POST">
+        
+        <!-- Name Input -->
+        <div class="form-group">
+            <label for="profile_name">Full Name <span>*</span></label>
+            <input type="text" id="profile_name" name="name" class="form-control" 
+                   value="{{ student.Name }}" required>
+        </div>
+        
+        <div class="form-grid form-grid-2">
+            <!-- Email Input -->
+            <div class="form-group">
+                <label for="profile_email">College Email Address <span>*</span></label>
+                <input type="email" id="profile_email" name="email" class="form-control" 
+                       value="{{ student.Email }}" required>
+            </div>
+            
+            <!-- Department Selector -->
+            <div class="form-group">
+                <label for="profile_dept">Academic Department <span>*</span></label>
+                <select id="profile_dept" name="department" class="form-control" required>
+                    <option value="Computer Science & Engineering" {% if student.Department == 'Computer Science & Engineering' %}selected{% endif %}>Computer Science & Engineering</option>
+                    <option value="Electronics & Communication" {% if student.Department == 'Electronics & Communication' %}selected{% endif %}>Electronics & Communication</option>
+                    <option value="Electrical Engineering" {% if student.Department == 'Electrical Engineering' %}selected{% endif %}>Electrical Engineering</option>
+                    <option value="Mechanical Engineering" {% if student.Department == 'Mechanical Engineering' %}selected{% endif %}>Mechanical Engineering</option>
+                    <option value="Civil Engineering" {% if student.Department == 'Civil Engineering' %}selected{% endif %}>Civil Engineering</option>
+                    <option value="Information Technology" {% if student.Department == 'Information Technology' %}selected{% endif %}>Information Technology</option>
+                    <option value="Other" {% if student.Department not in ['Computer Science & Engineering', 'Electronics & Communication', 'Electrical Engineering', 'Mechanical Engineering', 'Civil Engineering', 'Information Technology'] %}selected{% endif %}>Other / Not Listed</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Password Input -->
+        <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 10px;">
+            <label for="profile_password">New Password <span style="font-weight: normal; color: var(--text-muted);">(Leave blank to keep current password)</span></label>
+            <input type="password" id="profile_password" name="password" class="form-control" 
+                   placeholder="Enter new password (min. 6 chars)" minlength="6">
+        </div>
+        
+        <div style="border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; justify-content: flex-end; gap: 15px;">
+            <a href="{{ url_for('student.dashboard') }}" class="btn-action" style="padding: 10px 20px;">
+                Cancel
+            </a>
+            <button type="submit" class="btn-submit">
+                Save Profile Changes <i class="fa-solid fa-floppy-disk" style="margin-left: 8px;"></i>
+            </button>
+        </div>
+        
+    </form>
+</div>
+{% endblock %}

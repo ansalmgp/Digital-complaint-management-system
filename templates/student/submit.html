@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Complaint - ShaktiCMS{% endblock %}
+{% block page_title %}Submit a New Complaint{% endblock %}
+
+{% block content %}
+<div class="content-card" style="max-width: 800px; margin: 0 auto;">
+    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px;">
+        <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--primary-color);">Complaint Form</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Please fill out the form details carefully. Fields marked with <span>*</span> are mandatory.</p>
+    </div>
+    
+    <form action="{{ url_for('student.submit_complaint') }}" method="POST" enctype="multipart/form-data">
+        
+        <!-- Title Input -->
+        <div class="form-group">
+            <label for="complaint_title">Complaint Title <span>*</span></label>
+            <input type="text" id="complaint_title" name="title" class="form-control" 
+                   placeholder="Brief summary of the issue (e.g. WiFi broken in Hostel Block B)" required>
+            <span class="help-text">Keep it clear and brief. Max 150 characters.</span>
+        </div>
+        
+        <div class="form-grid form-grid-2">
+            <!-- Category Selection -->
+            <div class="form-group">
+                <label for="complaint_category">Complaint Category <span>*</span></label>
+                <select id="complaint_category" name="category" class="form-control" required>
+                    <option value="" disabled selected>-- Select Category --</option>
+                    <option value="Academic">Academic Issues</option>
+                    <option value="Hostel">Hostel Issues</option>
+                    <option value="Facilities">College Facilities</option>
+                    <option value="Library">Library Issues</option>
+                    <option value="Transport">Transport Issues</option>
+                    <option value="Others">Other Issues</option>
+                </select>
+            </div>
+            
+            <!-- Date Auto Generated Placeholder -->
+            <div class="form-group">
+                <label>Date Submitted (Auto Generated)</label>
+                <input type="text" class="form-control" value="Today (Current Time)" disabled 
+                       style="background-color: #f1f5f9; cursor: not-allowed; border-color: #cbd5e1;">
+            </div>
+        </div>
+        
+        <!-- Description TextArea -->
+        <div class="form-group">
+            <label for="complaint_description">Detailed Description <span>*</span></label>
+            <textarea id="complaint_description" name="description" class="form-control" 
+                      placeholder="Explain the complaint in detail. Mention exact locations, serial numbers, times, or context to help administrators resolve the issue quickly." required></textarea>
+        </div>
+        
+        <!-- Optional Image Upload -->
+        <div class="form-group">
+            <label for="complaint_image_input">Upload Supporting Image <span style="font-weight: normal; color: var(--text-muted);">(Optional)</span></label>
+            <input type="file" id="complaint_image_input" name="image" class="form-control" accept="image/*">
+            <span class="help-text">Allowed formats: PNG, JPG, JPEG, GIF. Maximum size 16MB.</span>
+        </div>
+        
+        <!-- Image Preview Box -->
+        <div id="image_preview_container" style="display: none; margin-bottom: 25px; text-align: center;">
+            <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px;">Image Preview:</p>
+            <img id="image_preview" src="#" alt="Upload Preview" style="max-height: 250px; max-width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 5px; box-shadow: var(--shadow-sm);">
+        </div>
+        
+        <div style="border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; justify-content: flex-end; gap: 15px;">
+            <a href="{{ url_for('student.dashboard') }}" class="btn-action" style="padding: 10px 20px;">
+                Cancel
+            </a>
+            <button type="submit" class="btn-submit">
+                Submit Complaint <i class="fa-solid fa-paper-plane" style="margin-left: 8px;"></i>
+            </button>
+        </div>
+        
+    </form>
+</div>
+{% endblock %}

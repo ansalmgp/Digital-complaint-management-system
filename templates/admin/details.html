@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Complaint #{{ complaint.ComplaintID }} - ShaktiCMS{% endblock %}
+{% block page_title %}Review Complaint #{{ complaint.ComplaintID }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin.manage_complaints') }}" style="color: var(--secondary-color); text-decoration: none; font-weight: 600;">
+        <i class="fa-solid fa-arrow-left" style="margin-right: 5px;"></i> Back to Manage Complaints
+    </a>
+</div>
+
+<div class="detail-grid">
+    
+    <!-- Left Column: Details & Update Action Form -->
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+        
+        <!-- Complaint Ticket Info -->
+        <div class="content-card">
+            <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <span class="detail-label">Complaint Title</span>
+                    <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--primary-color);">{{ complaint.Title }}</h2>
+                </div>
+                <span class="badge {{ complaint.Status.lower().replace(' ', '-') }}" style="font-size: 0.9rem; padding: 6px 16px;">
+                    {{ complaint.Status }}
+                </span>
+            </div>
+            
+            <div class="form-grid form-grid-2" style="margin-bottom: 20px;">
+                <div class="detail-block">
+                    <span class="detail-label"><i class="fa-solid fa-graduation-cap" style="margin-right: 5px;"></i> Filed By Student</span>
+                    <span class="detail-value" style="display: block; font-weight: 600;">{{ complaint.StudentName }}</span>
+                    <span style="font-size: 0.82rem; color: var(--text-muted);">{{ complaint.StudentEmail }} | {{ complaint.StudentDept }}</span>
+                </div>
+                <div class="detail-block">
+                    <span class="detail-label"><i class="fa-solid fa-calendar-check" style="margin-right: 5px;"></i> Category & Date Filed</span>
+                    <span class="detail-value" style="display: block; font-weight: 600;">{{ complaint.Category }}</span>
+                    <span style="font-size: 0.82rem; color: var(--text-muted);">Filed On: {{ complaint.CreatedDate }}</span>
+                </div>
+            </div>
+            
+            <div class="detail-block">
+                <span class="detail-label"><i class="fa-solid fa-align-left" style="margin-right: 5px;"></i> Detailed Description</span>
+                <div class="complaint-desc-box">{{ complaint.Description }}</div>
+            </div>
+            
+            {% if complaint.ImagePath %}
+                <div class="detail-block" style="margin-top: 25px;">
+                    <span class="detail-label"><i class="fa-solid fa-image" style="margin-right: 5px;"></i> Image Attachment</span>
+                    <div>
+                        <a href="{{ url_for('static', filename='uploads/' ~ complaint.ImagePath) }}" target="_blank">
+                            <img src="{{ url_for('static', filename='uploads/' ~ complaint.ImagePath) }}" alt="Supporting Image Attachment" class="uploaded-image-preview">
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Action Status Update Form -->
+        <div class="content-card">
+            <h3 class="card-title" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; color: var(--primary-color);">
+                <i class="fa-solid fa-circle-exclamation" style="margin-right: 8px;"></i> Take Action / Update Status
+            </h3>
+            
+            <form action="{{ url_for('admin.details', complaint_id=complaint.ComplaintID) }}" method="POST">
+                
+                <div class="form-grid form-grid-2">
+                    <!-- Update Status -->
+                    <div class="form-group">
+                        <label for="update_status">Update Workflow Status <span>*</span></label>
+                        <select id="update_status" name="status" class="form-control" required>
+                            <option value="Pending" {% if complaint.Status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Under Review" {% if complaint.Status == 'Under Review' %}selected{% endif %}>Under Review</option>
+                            <option value="In Progress" {% if complaint.Status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                            <option value="Resolved" {% if complaint.Status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                            <option value="Rejected" {% if complaint.Status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Assignee -->
+                    <div class="form-group">
+                        <label for="assign_officer">Assign Department/Officer <span style="font-weight: normal; color: var(--text-muted);">(Optional)</span></label>
+                        <input type="text" id="assign_officer" name="assignee" class="form-control" 
+                               placeholder="e.g. Electrical Dept, Warden Hostel-A">
+                    </div>
+                </div>
+                
+                <!-- Remarks -->
+                <div class="form-group">
+                    <label for="admin_remarks">Administration / Resolution Remarks <span>*</span></label>
+                    <textarea id="admin_remarks" name="remarks" class="form-control" 
+                              placeholder="Write status update feedback, notes, or final resolution remarks here for the student..." required></textarea>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn-submit" style="background-color: var(--primary-color);">
+                        Post Status Update <i class="fa-solid fa-cloud-arrow-up" style="margin-left: 8px;"></i>
+                    </button>
+                </div>
+                
+            </form>
+        </div>
+        
+    </div>
+    
+    <!-- Right Column: Status Log History -->
+    <div class="content-card">
+        <h3 class="card-title" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px;">
+            <i class="fa-solid fa-route" style="color: var(--secondary-color); margin-right: 8px;"></i> Action Trail Timeline
+        </h3>
+        
+        {% if history_logs %}
+            <div class="timeline-wrapper">
+                {% for log in history_logs %}
+                    <div class="timeline-item completed">
+                        <div class="timeline-badge"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header-flex">
+                                <span class="timeline-status" style="font-weight: 700;">
+                                    {% if log.OldStatus %}
+                                        {{ log.OldStatus }} &rarr; {{ log.NewStatus }}
+                                    {% else %}
+                                        Filed Status: {{ log.NewStatus }}
+                                    {% endif %}
+                                </span>
+                                <span class="timeline-date">{{ log.UpdatedDate }}</span>
+                            </div>
+                            <div class="timeline-updater">
+                                <i class="fa-solid fa-user-tie" style="margin-right: 4px;"></i> By: {{ log.UpdatedBy }}
+                            </div>
+                            {% if log.Remarks %}
+                                <div class="timeline-remarks">
+                                    "{{ log.Remarks }}"
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: var(--text-muted); text-align: center; font-style: italic;">No audit log trail found.</p>
+        {% endif %}
+    </div>
+    
+</div>
+{% endblock %}

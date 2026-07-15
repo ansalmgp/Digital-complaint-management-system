@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}System Reports - ShaktiCMS{% endblock %}
+{% block page_title %}System Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header-flex" style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px;">
+        <div>
+            <h3 class="card-title"><i class="fa-solid fa-file-invoice-chart" style="color: var(--secondary-color); margin-right: 8px;"></i> Complaint Management Reports</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">View aggregate statistics, monthly submission volume, category distribution, and system performance metrics.</p>
+        </div>
+        
+        <!-- Print Button -->
+        <button onclick="window.print()" class="btn-print">
+            <i class="fa-solid fa-print" style="margin-right: 8px;"></i> Print Report
+        </button>
+    </div>
+    
+    <!-- Report Metrics Cards -->
+    <div class="dashboard-grid">
+        <!-- Total -->
+        <div class="stat-card total" style="border-left-color: var(--primary-color);">
+            <span class="stat-title">Total Filed Complaints</span>
+            <span class="stat-value">{{ total }}</span>
+        </div>
+        <!-- Pending -->
+        <div class="stat-card pending" style="border-left-color: var(--color-pending);">
+            <span class="stat-title">Unresolved Tickets (Pending)</span>
+            <span class="stat-value">{{ pending }}</span>
+        </div>
+        <!-- Resolved -->
+        <div class="stat-card resolved" style="border-left-color: var(--color-resolved);">
+            <span class="stat-title">Resolved Complaints</span>
+            <span class="stat-value">{{ resolved }}</span>
+        </div>
+        <!-- Resolution Percentage -->
+        <div class="stat-card progress" style="border-left-color: var(--color-progress);">
+            <span class="stat-title">Resolution Rate</span>
+            <span class="stat-value">{{ res_percentage }}%</span>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Visual Graphs -->
+<div class="report-row-flex">
+    <!-- Category Distribution -->
+    <div class="chart-card">
+        <h3 class="card-title" style="margin-bottom: 15px;"><i class="fa-solid fa-chart-pie" style="color: var(--secondary-color); margin-right: 8px;"></i> Category-wise Complaints Distribution</h3>
+        <div class="chart-container">
+            <canvas id="categoryReportChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Monthly Submissions Trend -->
+    <div class="chart-card">
+        <h3 class="card-title" style="margin-bottom: 15px;"><i class="fa-solid fa-chart-line" style="color: var(--secondary-color); margin-right: 8px;"></i> Monthly Complaints Trend</h3>
+        <div class="chart-container">
+            <canvas id="monthlyReportChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Table for print view representation -->
+<div class="content-card" style="margin-top: 30px;">
+    <h3 class="card-title" style="margin-bottom: 15px;"><i class="fa-solid fa-table" style="color: var(--secondary-color); margin-right: 8px;"></i> Summary Table</h3>
+    <div class="table-container">
+        <table class="custom-table" style="font-size: 0.9rem;">
+            <thead>
+                <tr>
+                    <th>Status Category</th>
+                    <th>Number of Complaints</th>
+                    <th>Percentage (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Pending</strong></td>
+                    <td>{{ pending }}</td>
+                    <td>{{ ((pending / total * 100) | round(2)) if total > 0 else 0.0 }}%</td>
+                </tr>
+                <tr>
+                    <td><strong>Under Review</strong></td>
+                    <td>{{ under_review }}</td>
+                    <td>{{ ((under_review / total * 100) | round(2)) if total > 0 else 0.0 }}%</td>
+                </tr>
+                <tr>
+                    <td><strong>In Progress</strong></td>
+                    <td>{{ in_progress }}</td>
+                    <td>{{ ((in_progress / total * 100) | round(2)) if total > 0 else 0.0 }}%</td>
+                </tr>
+                <tr>
+                    <td><strong>Resolved</strong></td>
+                    <td>{{ resolved }}</td>
+                    <td>{{ ((resolved / total * 100) | round(2)) if total > 0 else 0.0 }}%</td>
+                </tr>
+                <tr>
+                    <td><strong>Rejected</strong></td>
+                    <td>{{ rejected }}</td>
+                    <td>{{ ((rejected / total * 100) | round(2)) if total > 0 else 0.0 }}%</td>
+                </tr>
+                <tr style="border-top: 2px solid var(--border-color); background-color: #f8fafc; font-weight: bold;">
+                    <td>Total Records</td>
+                    <td>{{ total }}</td>
+                    <td>100.00%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load data from python
+        const rawCategoryData = {{ category_counts | tojson | safe }};
+        const rawMonthlyData = {{ monthly_data | tojson | safe }};
+        
+        // Color palette configurations
+        const categoryColors = ['#1e3a8a', '#3b82f6', '#0284c7', '#06b6d4', '#8b5cf6', '#10b981', '#64748b'];
+        
+        // Draw Pie chart for Category counts
+        drawPieChart('categoryReportChart', rawCategoryData, categoryColors);
+        
+        // Draw Line chart for Monthly trend counts
+        drawLineChart('monthlyReportChart', rawMonthlyData, '#3b82f6');
+    });
+</script>
+{% endblock %}
